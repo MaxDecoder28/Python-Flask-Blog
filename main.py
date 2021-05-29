@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect , flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from flask_mail import Mail
@@ -54,6 +54,9 @@ class Posts(db.Model):
 
 @app.route("/")
 def home():
+#     flash("Subscribe to Gamemoderz", "success")
+#     flash("Please like the video so he created a more videos.", "danger")
+
     posts = Posts.query.filter_by().all()
     last = math.ceil(len(posts)/int(params['no_of_post']))
 
@@ -144,7 +147,7 @@ def edit(sno):
                 return redirect('/edit/'+ sno)
         post=Posts.query.filter_by(sno=sno).first()
 
-        return render_template('edit.html', params=params, post=post)
+        return render_template('edit.html', params=params, post=post, sno=sno)
 
 
 @app.route("/uploader", methods=['GET', 'POST'])
@@ -173,6 +176,7 @@ def logout():
 
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():
+
     if (request.method == 'POST'):
         # '''Add entry to the database'''
         name = request.form.get('name')
@@ -182,12 +186,13 @@ def contact():
         entry = Contacts(name=name, email=email, phone_num=phone, msg=message ,date=datetime.now())
         db.session.add(entry)
         db.session.commit()
-        mail.send_message('New message from ' + name,
-                          sender=email,
-                          recipients=[params['gmail-user']],
-                          body=message + "\n" + phone
-                          )
+        # mail.send_message('New message from ' + name,
+                        #   sender=email,
+                        #   recipients=[params['gmail-user']],
+                        #   body=message + "\n" + phone
+                        #   )
 
+    flash("Thanks for submitting your details. We will get back to you soon", "success")
     return render_template('contact.html', params=params)
 
 
